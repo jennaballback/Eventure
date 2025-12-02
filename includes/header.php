@@ -17,7 +17,7 @@ if (session_status() === PHP_SESSION_NONE) {
     <div class="container">
         <!-- Logo -->
         <a class="navbar-brand" href="<?php echo isset($_SESSION['user_id']) ? 'dashboard.php' : 'login.php'; ?>">
-            <img src="public/images/logo.png" alt="MumboJumbo Logo" height="40">
+            <img src="public/img/eventurelogo.png" alt="MumboJumbo Logo" class="logo" style="height:100px;width:auto;">
         </a>
 
         <!-- Toggler for mobile -->

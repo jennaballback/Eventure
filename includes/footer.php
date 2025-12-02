@@ -2,7 +2,7 @@
 
     <!-- Footer -->
     <footer class="bg-light text-center py-3 mt-5">
-        <p>&copy; <?php echo date("Y"); ?> MumboJumbo. All rights reserved.</p>
+        <p>&copy; <?php echo date("Y"); ?> Eventure. All rights reserved.</p>
     </footer>
 
     <!-- Bootstrap JS -->

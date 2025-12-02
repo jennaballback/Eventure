@@ -20,8 +20,9 @@ body {
     margin-top: 15px;
 }
 
-.navbar-brand img {
-    height: 40px; /* Logo height */
+.navbar {
+    padding-top: 0rem;   /* reduce top padding */
+    padding-bottom: 0rem; /* reduce bottom padding */
 }
 
 .navbar-nav .nav-link {
