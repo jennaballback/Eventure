@@ -233,7 +233,7 @@ foreach ($test_results as $result) {
     </style>
 </head>
 <body>
-    <h1>MumboJumbo Test Suite</h1>
+    <h1>Eventure Test</h1>
     
     <div class="summary">
         <p>Tests Passed: <?= $passed ?> | Tests Failed: <?= $failed ?></p>
