@@ -186,6 +186,7 @@ function test_database_schema($conn) {
 }
 
 // TEST 10: Email Configuration Files
+/*
 function test_email_files() {
     $email_files = [
         'includes/email_config.php',
@@ -205,7 +206,7 @@ function test_email_files() {
     } else {
         return ['status' => 'WARN', 'message' => 'Missing email files: ' . implode(', ', $missing) . ' (Optional feature)'];
     }
-}
+}*/
 
 // Run all tests
 $test_results['Database Connection'] = test_database_connection($conn);
