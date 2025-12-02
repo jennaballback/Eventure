@@ -1,4 +1,7 @@
 <?php
+// test_suite.php
+// Place this file in the root directory of your project
+// Access it at: http://localhost/MumboJumbo-main/test_suite.php
 
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
@@ -10,151 +13,200 @@ $test_results = [];
 
 // TEST 1: Database Connection
 function test_database_connection($conn) {
-    if ($conn) {
+    if ($conn && mysqli_ping($conn)) {
         return ['status' => 'PASS', 'message' => 'Database connected successfully'];
     } else {
         return ['status' => 'FAIL', 'message' => 'Database connection failed'];
     }
 }
 
-// TEST 2: Users Table Exists
+// TEST 2: Users Table Exists and Has Data
 function test_users_table($conn) {
     $result = mysqli_query($conn, "SHOW TABLES LIKE 'users'");
-    if (mysqli_num_rows($result) > 0) {
-        return ['status' => 'PASS', 'message' => 'Users table exists'];
+    if (mysqli_num_rows($result) == 0) {
+        return ['status' => 'FAIL', 'message' => 'Users table does not exist'];
+    }
+    
+    $result = mysqli_query($conn, "SELECT COUNT(*) as count FROM users");
+    $row = mysqli_fetch_assoc($result);
+    $count = $row['count'];
+    
+    if ($count > 0) {
+        return ['status' => 'PASS', 'message' => "Users table exists with {$count} user(s)"];
     } else {
-        return ['status' => 'FAIL', 'message' => 'Users table not found'];
+        return ['status' => 'FAIL', 'message' => 'Users table exists but has no data. Register a user first.'];
     }
 }
 
 // TEST 3: Events Table Exists
 function test_events_table($conn) {
     $result = mysqli_query($conn, "SHOW TABLES LIKE 'events'");
-    if (mysqli_num_rows($result) > 0) {
-        return ['status' => 'PASS', 'message' => 'Events table exists'];
-    } else {
-        return ['status' => 'FAIL', 'message' => 'Events table not found'];
+    if (mysqli_num_rows($result) == 0) {
+        return ['status' => 'FAIL', 'message' => 'Events table does not exist'];
     }
+    
+    $result = mysqli_query($conn, "SELECT COUNT(*) as count FROM events");
+    $row = mysqli_fetch_assoc($result);
+    $count = $row['count'];
+    
+    return ['status' => 'PASS', 'message' => "Events table exists with {$count} event(s)"];
 }
 
 // TEST 4: RSVPs Table Exists
 function test_rsvps_table($conn) {
     $result = mysqli_query($conn, "SHOW TABLES LIKE 'rsvps'");
-    if (mysqli_num_rows($result) > 0) {
-        return ['status' => 'PASS', 'message' => 'RSVPs table exists'];
+    if (mysqli_num_rows($result) == 0) {
+        return ['status' => 'FAIL', 'message' => 'RSVPs table does not exist'];
+    }
+    
+    $result = mysqli_query($conn, "SELECT COUNT(*) as count FROM rsvps");
+    $row = mysqli_fetch_assoc($result);
+    $count = $row['count'];
+    
+    return ['status' => 'PASS', 'message' => "RSVPs table exists with {$count} RSVP(s)"];
+}
+
+// TEST 5: User Registration Works (check password hashing)
+function test_user_registration($conn) {
+    $result = mysqli_query($conn, "SELECT password_hash FROM users LIMIT 1");
+    if (mysqli_num_rows($result) == 0) {
+        return ['status' => 'FAIL', 'message' => 'No users found. Register at least one user.'];
+    }
+    
+    $row = mysqli_fetch_assoc($result);
+    $hash = $row['password_hash'];
+    
+    if (strlen($hash) >= 60 && strpos($hash, '$') !== false) {
+        return ['status' => 'PASS', 'message' => 'User passwords are properly hashed'];
     } else {
-        return ['status' => 'FAIL', 'message' => 'RSVPs table not found'];
+        return ['status' => 'FAIL', 'message' => 'User passwords may not be hashed correctly'];
     }
 }
 
-// TEST 5: Can Insert Test User
-function test_insert_user($conn) {
-    $test_email = 'test_' . time() . '@test.com';
-    $password_hash = password_hash('testpass', PASSWORD_DEFAULT);
+// TEST 6: Foreign Keys Working (events reference users)
+function test_foreign_keys($conn) {
+    $result = mysqli_query($conn, "
+        SELECT COUNT(*) as count 
+        FROM events e 
+        LEFT JOIN users u ON e.host_id = u.user_id 
+        WHERE u.user_id IS NULL
+    ");
     
-    $stmt = $conn->prepare("INSERT INTO users (first_name, last_name, email, password_hash) VALUES (?, ?, ?, ?)");
-    $first = 'Test'; $last = 'User';
-    $stmt->bind_param("ssss", $first, $last, $test_email, $password_hash);
+    $row = mysqli_fetch_assoc($result);
+    $orphaned = $row['count'];
     
-    if ($stmt->execute()) {
-        $user_id = $stmt->insert_id;
-        mysqli_query($conn, "DELETE FROM users WHERE user_id = $user_id");
-        $stmt->close();
-        return ['status' => 'PASS', 'message' => 'User insertion works'];
+    if ($orphaned == 0) {
+        return ['status' => 'PASS', 'message' => 'All events have valid host references'];
     } else {
-        $stmt->close();
-        return ['status' => 'FAIL', 'message' => 'User insertion failed: ' . $stmt->error];
+        return ['status' => 'FAIL', 'message' => "{$orphaned} event(s) have invalid host_id"];
     }
 }
 
-// TEST 6: Can Insert Test Event
-function test_insert_event($conn) {
-    $test_email = 'eventtest_' . time() . '@test.com';
-    $password_hash = password_hash('testpass', PASSWORD_DEFAULT);
-    $stmt = $conn->prepare("INSERT INTO users (first_name, last_name, email, password_hash) VALUES (?, ?, ?, ?)");
-    $first = 'Event'; $last = 'Tester';
-    $stmt->bind_param("ssss", $first, $last, $test_email, $password_hash);
-    $stmt->execute();
-    $user_id = $stmt->insert_id;
-    $stmt->close();
+// TEST 7: RSVP Constraints Working
+function test_rsvp_constraints($conn) {
+    $result = mysqli_query($conn, "
+        SELECT COUNT(*) as count 
+        FROM rsvps r 
+        LEFT JOIN events e ON r.event_id = e.event_id 
+        LEFT JOIN users u ON r.user_id = u.user_id 
+        WHERE e.event_id IS NULL OR u.user_id IS NULL
+    ");
     
-    $stmt = $conn->prepare("INSERT INTO events (host_id, title, description, location, start_time) VALUES (?, ?, ?, ?, ?)");
-    $title = 'Test Event'; $desc = 'Test'; $loc = 'Test Location'; $time = date('Y-m-d H:i:s', strtotime('+1 day'));
-    $stmt->bind_param("issss", $user_id, $title, $desc, $loc, $time);
+    $row = mysqli_fetch_assoc($result);
+    $orphaned = $row['count'];
     
-    if ($stmt->execute()) {
-        $event_id = $stmt->insert_id;
-        mysqli_query($conn, "DELETE FROM events WHERE event_id = $event_id");
-        mysqli_query($conn, "DELETE FROM users WHERE user_id = $user_id");
-        $stmt->close();
-        return ['status' => 'PASS', 'message' => 'Event insertion works'];
+    if ($orphaned == 0) {
+        return ['status' => 'PASS', 'message' => 'All RSVPs have valid event and user references'];
     } else {
-        mysqli_query($conn, "DELETE FROM users WHERE user_id = $user_id");
-        $stmt->close();
-        return ['status' => 'FAIL', 'message' => 'Event insertion failed: ' . $stmt->error];
+        return ['status' => 'FAIL', 'message' => "{$orphaned} RSVP(s) have invalid references"];
     }
 }
 
-// TEST 7: Can Insert Test RSVP
-function test_insert_rsvp($conn) {
-    $test_email = 'rsvptest_' . time() . '@test.com';
-    $password_hash = password_hash('testpass', PASSWORD_DEFAULT);
-    $stmt = $conn->prepare("INSERT INTO users (first_name, last_name, email, password_hash) VALUES (?, ?, ?, ?)");
-    $first = 'RSVP'; $last = 'Tester';
-    $stmt->bind_param("ssss", $first, $last, $test_email, $password_hash);
-    $stmt->execute();
-    $user_id = $stmt->insert_id;
-    $stmt->close();
+// TEST 8: Required PHP Files Exist
+function test_required_files() {
+    $required_files = [
+        'login.php',
+        'register.php',
+        'dashboard.php',
+        'logout.php',
+        'events/create_event.php',
+        'events/edit_event.php',
+        'events/delete_event.php',
+        'events/rsvp.php',
+        'events/view_events.php',
+        'events/event_rsvps.php',
+        'includes/db.php'
+    ];
     
-    $stmt = $conn->prepare("INSERT INTO events (host_id, title, location, start_time) VALUES (?, ?, ?, ?)");
-    $title = 'RSVP Test Event'; $loc = 'Test'; $time = date('Y-m-d H:i:s', strtotime('+1 day'));
-    $stmt->bind_param("isss", $user_id, $title, $loc, $time);
-    $stmt->execute();
-    $event_id = $stmt->insert_id;
-    $stmt->close();
+    $missing = [];
+    foreach ($required_files as $file) {
+        if (!file_exists($file)) {
+            $missing[] = $file;
+        }
+    }
     
-    $stmt = $conn->prepare("INSERT INTO rsvps (event_id, user_id, status) VALUES (?, ?, ?)");
-    $status = 'yes';
-    $stmt->bind_param("iis", $event_id, $user_id, $status);
-    
-    if ($stmt->execute()) {
-        mysqli_query($conn, "DELETE FROM rsvps WHERE event_id = $event_id");
-        mysqli_query($conn, "DELETE FROM events WHERE event_id = $event_id");
-        mysqli_query($conn, "DELETE FROM users WHERE user_id = $user_id");
-        $stmt->close();
-        return ['status' => 'PASS', 'message' => 'RSVP insertion works'];
+    if (empty($missing)) {
+        return ['status' => 'PASS', 'message' => 'All required PHP files exist'];
     } else {
-        mysqli_query($conn, "DELETE FROM events WHERE event_id = $event_id");
-        mysqli_query($conn, "DELETE FROM users WHERE user_id = $user_id");
-        $stmt->close();
-        return ['status' => 'FAIL', 'message' => 'RSVP insertion failed: ' . $stmt->error];
+        return ['status' => 'FAIL', 'message' => 'Missing files: ' . implode(', ', $missing)];
     }
 }
 
-// TEST 8: Login.php File Exists
-function test_login_file() {
-    if (file_exists('login.php')) {
-        return ['status' => 'PASS', 'message' => 'login.php exists'];
+// TEST 9: Database Schema Check
+function test_database_schema($conn) {
+    $expected_columns = [
+        'users' => ['user_id', 'first_name', 'last_name', 'email', 'password_hash', 'created_at'],
+        'events' => ['event_id', 'host_id', 'title', 'description', 'location', 'start_time', 'end_time', 'theme', 'is_canceled', 'created_at'],
+        'rsvps' => ['rsvp_id', 'event_id', 'user_id', 'status', 'responded_at']
+    ];
+    
+    $schema_issues = [];
+    
+    foreach ($expected_columns as $table => $columns) {
+        $result = mysqli_query($conn, "DESCRIBE $table");
+        if (!$result) {
+            $schema_issues[] = "Table $table does not exist";
+            continue;
+        }
+        
+        $existing_columns = [];
+        while ($row = mysqli_fetch_assoc($result)) {
+            $existing_columns[] = $row['Field'];
+        }
+        
+        foreach ($columns as $col) {
+            if (!in_array($col, $existing_columns)) {
+                $schema_issues[] = "$table missing column: $col";
+            }
+        }
+    }
+    
+    if (empty($schema_issues)) {
+        return ['status' => 'PASS', 'message' => 'Database schema is correct'];
     } else {
-        return ['status' => 'FAIL', 'message' => 'login.php not found'];
+        return ['status' => 'FAIL', 'message' => implode('; ', $schema_issues)];
     }
 }
 
-// TEST 9: Register.php File Exists
-function test_register_file() {
-    if (file_exists('register.php')) {
-        return ['status' => 'PASS', 'message' => 'register.php exists'];
-    } else {
-        return ['status' => 'FAIL', 'message' => 'register.php not found'];
+// TEST 10: Email Configuration Files
+function test_email_files() {
+    $email_files = [
+        'includes/email_config.php',
+        'includes/email_helper.php',
+        'events/send_invite.php'
+    ];
+    
+    $missing = [];
+    foreach ($email_files as $file) {
+        if (!file_exists($file)) {
+            $missing[] = $file;
+        }
     }
-}
-
-// TEST 10: Create Event File Exists
-function test_create_event_file() {
-    if (file_exists('events/create_event.php')) {
-        return ['status' => 'PASS', 'message' => 'create_event.php exists'];
+    
+    if (empty($missing)) {
+        return ['status' => 'PASS', 'message' => 'All email integration files exist'];
     } else {
-        return ['status' => 'FAIL', 'message' => 'create_event.php not found'];
+        return ['status' => 'WARN', 'message' => 'Missing email files: ' . implode(', ', $missing) . ' (Optional feature)'];
     }
 }
 
@@ -163,19 +215,21 @@ $test_results['Database Connection'] = test_database_connection($conn);
 $test_results['Users Table'] = test_users_table($conn);
 $test_results['Events Table'] = test_events_table($conn);
 $test_results['RSVPs Table'] = test_rsvps_table($conn);
-$test_results['Insert User'] = test_insert_user($conn);
-$test_results['Insert Event'] = test_insert_event($conn);
-$test_results['Insert RSVP'] = test_insert_rsvp($conn);
-$test_results['Login File'] = test_login_file();
-$test_results['Register File'] = test_register_file();
-$test_results['Create Event File'] = test_create_event_file();
+$test_results['User Registration'] = test_user_registration($conn);
+$test_results['Foreign Keys'] = test_foreign_keys($conn);
+$test_results['RSVP Constraints'] = test_rsvp_constraints($conn);
+$test_results['Required Files'] = test_required_files();
+$test_results['Database Schema'] = test_database_schema($conn);
+$test_results['Email Integration'] = test_email_files();
 
 $conn->close();
 
 $passed = 0;
 $failed = 0;
+$warnings = 0;
 foreach ($test_results as $result) {
     if ($result['status'] === 'PASS') $passed++;
+    elseif ($result['status'] === 'WARN') $warnings++;
     else $failed++;
 }
 ?>
@@ -187,7 +241,7 @@ foreach ($test_results as $result) {
     <style>
         body { 
             font-family: Arial, sans-serif; 
-            max-width: 800px; 
+            max-width: 900px; 
             margin: 50px auto; 
             padding: 20px;
         }
@@ -220,6 +274,10 @@ foreach ($test_results as $result) {
             color: red;
             font-weight: bold;
         }
+        .warn {
+            color: orange;
+            font-weight: bold;
+        }
         .buttons {
             text-align: center;
             margin-top: 30px;
@@ -230,13 +288,24 @@ foreach ($test_results as $result) {
             margin: 5px;
             cursor: pointer;
         }
+        .info-box {
+            background-color: #e7f3ff;
+            padding: 15px;
+            margin: 20px 0;
+            border-left: 4px solid #2196F3;
+        }
     </style>
 </head>
 <body>
     <h1>Eventure Test</h1>
     
+    <div class="info-box">
+        <strong>Note:</strong> This test suite checks your actual project data and files. 
+        If tests fail, you need to fix the actual issues in your project.
+    </div>
+    
     <div class="summary">
-        <p>Tests Passed: <?= $passed ?> | Tests Failed: <?= $failed ?></p>
+        <p>Tests Passed: <?= $passed ?> | Tests Failed: <?= $failed ?> | Warnings: <?= $warnings ?></p>
     </div>
 
     <table>
