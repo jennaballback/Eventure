@@ -1,7 +1,4 @@
 <?php
-// test_suite.php
-// Place this file in the root directory of your project
-// Access it at: http://localhost/MumboJumbo-main/test_suite.php
 
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
@@ -298,11 +295,6 @@ foreach ($test_results as $result) {
 </head>
 <body>
     <h1>Eventure Test</h1>
-    
-    <div class="info-box">
-        <strong>Note:</strong> This test suite checks your actual project data and files. 
-        If tests fail, you need to fix the actual issues in your project.
-    </div>
     
     <div class="summary">
         <p>Tests Passed: <?= $passed ?> | Tests Failed: <?= $failed ?> | Warnings: <?= $warnings ?></p>
