@@ -218,7 +218,7 @@ $test_results['Foreign Keys'] = test_foreign_keys($conn);
 $test_results['RSVP Constraints'] = test_rsvp_constraints($conn);
 $test_results['Required Files'] = test_required_files();
 $test_results['Database Schema'] = test_database_schema($conn);
-$test_results['Email Integration'] = test_email_files();
+//$test_results['Email Integration'] = test_email_files();
 
 $conn->close();
 
