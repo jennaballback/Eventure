@@ -46,7 +46,7 @@ include 'includes/header.php';
 
 <?php if ($view === 'hosted'): ?>
     <div class="mb-3">
-        <a href="create_event.php" class="btn btn-success">Create Event</a>
+        <a href="events/create_event.php" class="btn btn-success">Create Event</a>
     </div>
 <?php endif; ?>
 
@@ -71,7 +71,7 @@ include 'includes/header.php';
                     <td><?= htmlspecialchars($event['location'] ?? '') ?></td>
                     <td><?= htmlspecialchars($event['theme'] ?? '') ?></td>
                     <td><?= htmlspecialchars($event['start_time']) ?></td>
-                    <td><?= htmlspecialchars($event['end_time']) ?></td>
+                    <td><?= htmlspecialchars($event['end_time'] ?? '') ?></td>
                     <td>
                         <?php if ($event['host_id'] == $user_id): ?>
                             <a href="events/edit_event.php?event_id=<?= $event['event_id'] ?>" class="btn btn-warning btn-sm">Edit</a>

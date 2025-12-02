@@ -68,7 +68,7 @@ $conn->close();
 
 <div class="container">
     <?php if (!empty($message)): ?>
-        <div class="alert alert-danger"><?= htmlspecialchars($message) ?></div>
+        <div class="alert alert-danger"><?= htmlspecialchars($message ?? '') ?></div>
     <?php endif; ?>
 
     <form method="POST" action="create_event.php">
@@ -78,7 +78,7 @@ $conn->close();
         <label>Description (optional):</label>
         <textarea name="description" rows="3"></textarea>
 
-        <label>Location (optional):</label>
+        <label>Location:</label>
         <input type="text" name="location">
 
         <label>Theme (optional):</label>
