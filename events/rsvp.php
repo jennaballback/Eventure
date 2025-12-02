@@ -6,24 +6,23 @@ error_reporting(E_ALL);
 
 include '../includes/db.php';
 
-$email_enabled = file_exists('../includes/email_helper.php');
+/*$email_enabled = file_exists('../includes/email_helper.php');
 if ($email_enabled) {
     include '../includes/email_helper.php';
 }
-
 $event_id = $_GET['event_id'] ?? null;
 
 if (!$event_id) {
     echo "Invalid event ID.";
     exit();
-}
+}*/
 
 // Fetch event info
-//$stmt = $conn->prepare("SELECT * FROM events WHERE event_id = ?");
-$stmt = $conn->prepare("SELECT e.*, u.first_name AS host_first, u.last_name AS host_last, u.email AS host_email 
+$stmt = $conn->prepare("SELECT * FROM events WHERE event_id = ?");
+/*$stmt = $conn->prepare("SELECT e.*, u.first_name AS host_first, u.last_name AS host_last, u.email AS host_email 
                         FROM events e 
                         JOIN users u ON e.host_id = u.user_id 
-                        WHERE e.event_id = ?");
+                        WHERE e.event_id = ?");*/
 
 $stmt->bind_param("i", $event_id);
 $stmt->execute();
@@ -66,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $user_id) {
         $user_rsvp = $status; // set immediately so we can show only one message
         $message = "Your RSVP has been recorded as '".ucfirst($status)."'.";
 
-        if ($email_enabled) {
+        /*if ($email_enabled) {
             $stmt = $conn->prepare("SELECT first_name, last_name, email FROM users WHERE user_id = ?");
             $stmt->bind_param("i", $user_id);
             $stmt->execute();
@@ -84,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $user_id) {
             $guest_name = $user['first_name'] . ' ' . $user['last_name'];
             $host_name = $event['host_first'] . ' ' . $event['host_last'];
             send_host_rsvp_notification($event['host_email'], $host_name, $guest_name, $event['title'], $status);
-        }
+        }*/
     }
 }
 
@@ -132,7 +131,7 @@ $conn->close();
     <p><strong>Location:</strong> <?= htmlspecialchars($event['location'] ?? 'N/A') ?></p>
     <p><strong>Start Time:</strong> <?= htmlspecialchars($event['start_time']) ?></p>
     <p><strong>End Time:</strong> <?= htmlspecialchars($event['end_time'] ?? 'N/A') ?></p>
-    <p><strong>Host:</strong> <?= htmlspecialchars($event['host_first'] . ' ' . $event['host_last']) ?></p>
+    <!--<p><strong>Host:</strong> <?= htmlspecialchars($event['host_first'] . ' ' . $event['host_last']) ?></p>-->
 
     <?php if ($message) echo "<p class='message'>$message</p>"; ?>
 
@@ -149,8 +148,8 @@ $conn->close();
             <p class='message'>You have RSVPed: <?= ucfirst($user_rsvp) ?></p>
         <?php endif; ?>
         <div class="text-center">
-            <!--<a href="event_rsvps.php?event_id=<?= $event_id ?>" class="btn-back">← Back to RSVPs</a>-->
-            <a href="../dashboard.php" class="btn-back">Back to Dashboard</a>
+            <a href="event_rsvps.php?event_id=<?= $event_id ?>" class="btn-back">← Back to RSVPs</a>
+            <!--<a href="../dashboard.php" class="btn-back">Back to Dashboard</a>-->
         </div>
     <?php else: ?>
         <p class="message">Please <a href="../login.php">log in</a> to RSVP.</p>
