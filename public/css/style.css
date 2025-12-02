@@ -19,3 +19,16 @@ body {
     text-align: center;
     margin-top: 15px;
 }
+
+.navbar-brand img {
+    height: 40px; /* Logo height */
+}
+
+.navbar-nav .nav-link {
+    margin-right: 15px;
+}
+
+.dropdown-menu-end {
+    right: 0;
+    left: auto;
+}

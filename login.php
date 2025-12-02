@@ -62,6 +62,7 @@ $conn->close();
     <link rel="stylesheet" href="public/css/style.css">
 </head>
 <body>
+    <?php include 'includes/header.php'; ?>
     <div class="container">
         <div class="card mx-auto login-card">
             <div class="card-body">
@@ -91,5 +92,6 @@ $conn->close();
             </div>
         </div>
     </div>
+    <?php include 'includes/footer.php'; ?>
 </body>
 </html>
