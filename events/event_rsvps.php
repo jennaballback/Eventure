@@ -56,8 +56,8 @@ foreach ($rsvps as $rsvp) {
 }
 
 // Build the invite link (you can share this URL)
-//$invite_link = "http://localhost/MumboJumbo/events/rsvp.php?event_id=" . $event_id; 
-$invite_link = "http://localhost/MumboJumbo-main/events/rsvp.php?event_id=" . $event_id;
+$invite_link = "http://localhost/MumboJumbo/events/rsvp.php?event_id=" . $event_id; 
+//$invite_link = "http://localhost/MumboJumbo-main/events/rsvp.php?event_id=" . $event_id;
 $conn->close();
 ?>
 
@@ -78,14 +78,13 @@ $conn->close();
         th { background-color: #ffd6d6; }
         td { vertical-align: middle; }
         .rsvp-counts { margin-bottom: 20px; font-weight: bold; color: #555; text-align: center; }
-        .rsvp-counts span { margin-right: 15px; }
-
-        .btn-send { background-color: #c8e6c9; color: #2e7d32; margin-left: 10px; }
-        .btn-send:hover { background-color: #a5d6a7; color: #2e7d32; }
+        .rsvp-counts span { margin-right: 15px; 
 
 
         
     </style>
+        <!--.btn-send { background-color: #c8e6c9; color: #2e7d32; margin-left: 10px; }
+        .btn-send:hover { background-color: #a5d6a7; color: #2e7d32; }-->
 </head>
 <body>
 <div class="container">
@@ -97,11 +96,11 @@ $conn->close();
 
     <!-- Invite Link Button -->
     <div class="text-center mb-3">
-        <!--<button class="btn btn-invite" onclick="copyInviteLink()">📎 Copy Invite Link</button>
-        <input type="text" id="inviteLink" value="<<?= $invite_link ?>" readonly style="position:absolute; left:-9999px;">-->
-        <button class="btn btn-invite" onclick="copyInviteLink()">Copy Invite Link</button>
-        <a href="send_invite.php?event_id=<?= $event_id ?>" class="btn btn-send">Send Invitation by Email</a>
+        <button class="btn btn-invite" onclick="copyInviteLink()">📎 Copy Invite Link</button>
         <input type="text" id="inviteLink" value="<?= $invite_link ?>" readonly style="position:absolute; left:-9999px;">
+        <!--<button class="btn btn-invite" onclick="copyInviteLink()">Copy Invite Link</button>
+        <a href="send_invite.php?event_id=<?= $event_id ?>" class="btn btn-send">Send Invitation by Email</a>
+        <input type="text" id="inviteLink" value="<?= $invite_link ?>" readonly style="position:absolute; left:-9999px;">-->
     </div>
 
     <div class="rsvp-counts">
