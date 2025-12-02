@@ -1,5 +1,4 @@
 <?php
-// test_suite.php
 
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
@@ -9,176 +8,157 @@ include 'includes/db.php';
 
 $test_results = [];
 
-// TEST FUNCTIONS
-
+// TEST 1: Database Connection
 function test_database_connection($conn) {
-    return $conn
-        ? ['status' => 'PASS', 'message' => 'Database connected successfully']
-        : ['status' => 'FAIL', 'message' => 'Database connection failed'];
+    if ($conn) {
+        return ['status' => 'PASS', 'message' => 'Database connected successfully'];
+    } else {
+        return ['status' => 'FAIL', 'message' => 'Database connection failed'];
+    }
 }
 
+// TEST 2: Users Table Exists
 function test_users_table($conn) {
     $result = mysqli_query($conn, "SHOW TABLES LIKE 'users'");
-    return ($result && mysqli_num_rows($result) > 0)
-        ? ['status' => 'PASS', 'message' => 'Users table exists']
-        : ['status' => 'FAIL', 'message' => 'Users table not found'];
+    if (mysqli_num_rows($result) > 0) {
+        return ['status' => 'PASS', 'message' => 'Users table exists'];
+    } else {
+        return ['status' => 'FAIL', 'message' => 'Users table not found'];
+    }
 }
 
+// TEST 3: Events Table Exists
 function test_events_table($conn) {
     $result = mysqli_query($conn, "SHOW TABLES LIKE 'events'");
-    return ($result && mysqli_num_rows($result) > 0)
-        ? ['status' => 'PASS', 'message' => 'Events table exists']
-        : ['status' => 'FAIL', 'message' => 'Events table not found'];
+    if (mysqli_num_rows($result) > 0) {
+        return ['status' => 'PASS', 'message' => 'Events table exists'];
+    } else {
+        return ['status' => 'FAIL', 'message' => 'Events table not found'];
+    }
 }
 
+// TEST 4: RSVPs Table Exists
 function test_rsvps_table($conn) {
     $result = mysqli_query($conn, "SHOW TABLES LIKE 'rsvps'");
-    return ($result && mysqli_num_rows($result) > 0)
-        ? ['status' => 'PASS', 'message' => 'RSVPs table exists']
-        : ['status' => 'FAIL', 'message' => 'RSVPs table not found'];
+    if (mysqli_num_rows($result) > 0) {
+        return ['status' => 'PASS', 'message' => 'RSVPs table exists'];
+    } else {
+        return ['status' => 'FAIL', 'message' => 'RSVPs table not found'];
+    }
 }
 
+// TEST 5: Can Insert Test User
 function test_insert_user($conn) {
-    $email = 'test_' . time() . '@test.com';
-    $pass  = password_hash('testpass', PASSWORD_DEFAULT);
-
+    $test_email = 'test_' . time() . '@test.com';
+    $password_hash = password_hash('testpass', PASSWORD_DEFAULT);
+    
     $stmt = $conn->prepare("INSERT INTO users (first_name, last_name, email, password_hash) VALUES (?, ?, ?, ?)");
-    if (!$stmt) return ['status' => 'FAIL', 'message' => 'Prepare failed for user insert'];
-
-    $first = 'Test'; 
-    $last  = 'User';
-    $stmt->bind_param("ssss", $first, $last, $email, $pass);
-
+    $first = 'Test'; $last = 'User';
+    $stmt->bind_param("ssss", $first, $last, $test_email, $password_hash);
+    
     if ($stmt->execute()) {
-        $id = $stmt->insert_id;
-        mysqli_query($conn, "DELETE FROM users WHERE user_id = $id");
+        $user_id = $stmt->insert_id;
+        mysqli_query($conn, "DELETE FROM users WHERE user_id = $user_id");
         $stmt->close();
         return ['status' => 'PASS', 'message' => 'User insertion works'];
+    } else {
+        $stmt->close();
+        return ['status' => 'FAIL', 'message' => 'User insertion failed: ' . $stmt->error];
     }
-
-    $error = $stmt->error;
-    $stmt->close();
-    return ['status' => 'FAIL', 'message' => 'User insertion failed: ' . $error];
 }
 
+// TEST 6: Can Insert Test Event
 function test_insert_event($conn) {
-    // user
-    $email = 'event_' . time() . '@test.com';
-    $pass  = password_hash('testpass', PASSWORD_DEFAULT);
-
+    $test_email = 'eventtest_' . time() . '@test.com';
+    $password_hash = password_hash('testpass', PASSWORD_DEFAULT);
     $stmt = $conn->prepare("INSERT INTO users (first_name, last_name, email, password_hash) VALUES (?, ?, ?, ?)");
-    if (!$stmt) return ['status' => 'FAIL', 'message' => 'Prepare failed for event user insert'];
-
-    $first = 'Event'; 
-    $last  = 'Tester';
-    $stmt->bind_param("ssss", $first, $last, $email, $pass);
+    $first = 'Event'; $last = 'Tester';
+    $stmt->bind_param("ssss", $first, $last, $test_email, $password_hash);
     $stmt->execute();
     $user_id = $stmt->insert_id;
     $stmt->close();
-
-    // event
+    
     $stmt = $conn->prepare("INSERT INTO events (host_id, title, description, location, start_time) VALUES (?, ?, ?, ?, ?)");
-    if (!$stmt) {
-        mysqli_query($conn, "DELETE FROM users WHERE user_id = $user_id");
-        return ['status' => 'FAIL', 'message' => 'Prepare failed for event insert'];
-    }
-
-    $title = 'Test Event';
-    $desc  = 'Test';
-    $loc   = 'Test Location';
-    $time  = date('Y-m-d H:i:s', strtotime('+1 day'));
+    $title = 'Test Event'; $desc = 'Test'; $loc = 'Test Location'; $time = date('Y-m-d H:i:s', strtotime('+1 day'));
     $stmt->bind_param("issss", $user_id, $title, $desc, $loc, $time);
-
+    
     if ($stmt->execute()) {
         $event_id = $stmt->insert_id;
         mysqli_query($conn, "DELETE FROM events WHERE event_id = $event_id");
         mysqli_query($conn, "DELETE FROM users WHERE user_id = $user_id");
         $stmt->close();
         return ['status' => 'PASS', 'message' => 'Event insertion works'];
+    } else {
+        mysqli_query($conn, "DELETE FROM users WHERE user_id = $user_id");
+        $stmt->close();
+        return ['status' => 'FAIL', 'message' => 'Event insertion failed: ' . $stmt->error];
     }
-
-    $error = $stmt->error;
-    mysqli_query($conn, "DELETE FROM users WHERE user_id = $user_id");
-    $stmt->close();
-    return ['status' => 'FAIL', 'message' => 'Event insertion failed: ' . $error];
 }
 
+// TEST 7: Can Insert Test RSVP
 function test_insert_rsvp($conn) {
-    // user
-    $email = 'rsvp_' . time() . '@test.com';
-    $pass  = password_hash('testpass', PASSWORD_DEFAULT);
-
+    $test_email = 'rsvptest_' . time() . '@test.com';
+    $password_hash = password_hash('testpass', PASSWORD_DEFAULT);
     $stmt = $conn->prepare("INSERT INTO users (first_name, last_name, email, password_hash) VALUES (?, ?, ?, ?)");
-    if (!$stmt) return ['status' => 'FAIL', 'message' => 'Prepare failed for RSVP user insert'];
-
-    $first = 'RSVP'; 
-    $last  = 'Tester';
-    $stmt->bind_param("ssss", $first, $last, $email, $pass);
+    $first = 'RSVP'; $last = 'Tester';
+    $stmt->bind_param("ssss", $first, $last, $test_email, $password_hash);
     $stmt->execute();
     $user_id = $stmt->insert_id;
     $stmt->close();
-
-    // event
+    
     $stmt = $conn->prepare("INSERT INTO events (host_id, title, location, start_time) VALUES (?, ?, ?, ?)");
-    if (!$stmt) {
-        mysqli_query($conn, "DELETE FROM users WHERE user_id = $user_id");
-        return ['status' => 'FAIL', 'message' => 'Prepare failed for RSVP event insert'];
-    }
-
-    $title = 'RSVP Test Event';
-    $loc   = 'Test';
-    $time  = date('Y-m-d H:i:s', strtotime('+1 day'));
+    $title = 'RSVP Test Event'; $loc = 'Test'; $time = date('Y-m-d H:i:s', strtotime('+1 day'));
     $stmt->bind_param("isss", $user_id, $title, $loc, $time);
     $stmt->execute();
     $event_id = $stmt->insert_id;
     $stmt->close();
-
-    // rsvp
+    
     $stmt = $conn->prepare("INSERT INTO rsvps (event_id, user_id, status) VALUES (?, ?, ?)");
-    if (!$stmt) {
-        mysqli_query($conn, "DELETE FROM events WHERE event_id = $event_id");
-        mysqli_query($conn, "DELETE FROM users WHERE user_id = $user_id");
-        return ['status' => 'FAIL', 'message' => 'Prepare failed for RSVP insert'];
-    }
-
     $status = 'yes';
     $stmt->bind_param("iis", $event_id, $user_id, $status);
-
+    
     if ($stmt->execute()) {
         mysqli_query($conn, "DELETE FROM rsvps WHERE event_id = $event_id");
         mysqli_query($conn, "DELETE FROM events WHERE event_id = $event_id");
         mysqli_query($conn, "DELETE FROM users WHERE user_id = $user_id");
         $stmt->close();
         return ['status' => 'PASS', 'message' => 'RSVP insertion works'];
+    } else {
+        mysqli_query($conn, "DELETE FROM events WHERE event_id = $event_id");
+        mysqli_query($conn, "DELETE FROM users WHERE user_id = $user_id");
+        $stmt->close();
+        return ['status' => 'FAIL', 'message' => 'RSVP insertion failed: ' . $stmt->error];
     }
-
-    $error = $stmt->error;
-    mysqli_query($conn, "DELETE FROM events WHERE event_id = $event_id");
-    mysqli_query($conn, "DELETE FROM users WHERE user_id = $user_id");
-    $stmt->close();
-    return ['status' => 'FAIL', 'message' => 'RSVP insertion failed: ' . $error];
 }
 
+// TEST 8: Login.php File Exists
 function test_login_file() {
-    return file_exists('login.php')
-        ? ['status' => 'PASS', 'message' => 'login.php exists']
-        : ['status' => 'FAIL', 'message' => 'login.php not found'];
+    if (file_exists('login.php')) {
+        return ['status' => 'PASS', 'message' => 'login.php exists'];
+    } else {
+        return ['status' => 'FAIL', 'message' => 'login.php not found'];
+    }
 }
 
+// TEST 9: Register.php File Exists
 function test_register_file() {
-    return file_exists('register.php')
-        ? ['status' => 'PASS', 'message' => 'register.php exists']
-        : ['status' => 'FAIL', 'message' => 'register.php not found'];
+    if (file_exists('register.php')) {
+        return ['status' => 'PASS', 'message' => 'register.php exists'];
+    } else {
+        return ['status' => 'FAIL', 'message' => 'register.php not found'];
+    }
 }
 
+// TEST 10: Create Event File Exists
 function test_create_event_file() {
-    return file_exists('events/create_event.php')
-        ? ['status' => 'PASS', 'message' => 'create_event.php exists']
-        : ['status' => 'FAIL', 'message' => 'create_event.php not found'];
+    if (file_exists('events/create_event.php')) {
+        return ['status' => 'PASS', 'message' => 'create_event.php exists'];
+    } else {
+        return ['status' => 'FAIL', 'message' => 'create_event.php not found'];
+    }
 }
 
-//RUN TESTS
-
+// Run all tests
 $test_results['Database Connection'] = test_database_connection($conn);
 $test_results['Users Table'] = test_users_table($conn);
 $test_results['Events Table'] = test_events_table($conn);
@@ -194,7 +174,6 @@ $conn->close();
 
 $passed = 0;
 $failed = 0;
-
 foreach ($test_results as $result) {
     if ($result['status'] === 'PASS') $passed++;
     else $failed++;
@@ -205,48 +184,52 @@ foreach ($test_results as $result) {
 <html>
 <head>
     <title>MumboJumbo Test Suite</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background-color: #fdf6f0; font-family: Arial, sans-serif; padding: 20px; }
-        h2 { text-align: center; color: #7a5c61; }
-        .box {
-            max-width: 700px;
-            margin: 20px auto;
-            background: #ffffffcc;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
-        }
-        .result { margin-bottom: 15px; padding: 10px; border-radius: 6px; }
-        .PASS  { background-color: #d4edda; border-left: 5px solid #155724; }
-        .FAIL  { background-color: #f8d7da; border-left: 5px solid #721c24; }
-        a { color: #1d3557; text-decoration: none; font-weight: bold; }
-        a:hover { text-decoration: underline; }
+        body { font-family: Arial, sans-serif; background-color: #fdf6f0; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; background-color: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #7a5c61; margin-bottom: 30px; }
+        .summary { display: flex; justify-content: space-around; margin-bottom: 30px; }
+        .summary-box { padding: 20px; border-radius: 8px; text-align: center; flex: 1; margin: 0 10px; }
+        .summary-pass { background-color: #d4edda; color: #155724; }
+        .summary-fail { background-color: #f8d7da; color: #721c24; }
+        .test-result { padding: 15px; margin: 10px 0; border-radius: 8px; border-left: 5px solid; }
+        .pass { background-color: #d4edda; border-color: #28a745; }
+        .fail { background-color: #f8d7da; border-color: #dc3545; }
+        .test-name { font-weight: bold; font-size: 1.1rem; }
+        .test-message { margin-top: 5px; color: #555; }
     </style>
 </head>
 <body>
+<div class="container">
+    <h1>MumboJumbo Test Suite</h1>
+    
+    <div class="summary">
+        <div class="summary-box summary-pass">
+            <h2><?= $passed ?></h2>
+            <p>Tests Passed</p>
+        </div>
+        <div class="summary-box summary-fail">
+            <h2><?= $failed ?></h2>
+            <p>Tests Failed</p>
+        </div>
+    </div>
 
-<h2>MumboJumbo Test Suite</h2>
-
-<div class="box">
-    <p><strong>Total Tests:</strong> <?= $passed + $failed ?></p>
-    <p><strong>Passed:</strong> <?= $passed ?></p>
-    <p><strong>Failed:</strong> <?= $failed ?></p>
-
-    <h3>Test Results</h3>
-
-    <?php foreach ($test_results as $name => $result): ?>
-        <div class="result <?= $result['status'] ?>">
-            <strong><?= htmlspecialchars($name) ?>:</strong> <?= $result['status'] ?><br>
-            <?= htmlspecialchars($result['message']) ?>
+    <h3>Test Results:</h3>
+    <?php foreach ($test_results as $test_name => $result): ?>
+        <div class="test-result <?= strtolower($result['status']) ?>">
+            <div class="test-name">
+                [<?= $result['status'] ?>] <?= htmlspecialchars($test_name) ?>
+            </div>
+            <div class="test-message"><?= htmlspecialchars($result['message']) ?></div>
         </div>
     <?php endforeach; ?>
 
-    <p>
-        <a href="index.php">Back to Home</a> |
-        <a href="test_suite.php">Run Tests Again</a>
-    </p>
+    <div style="margin-top: 30px; text-align: center;">
+        <a href="index.php" class="btn btn-primary">Back to Home</a>
+        <button onclick="location.reload()" class="btn btn-secondary">Run Tests Again</button>
+    </div>
 </div>
-
 </body>
 </html>
 
