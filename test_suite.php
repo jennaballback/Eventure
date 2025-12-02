@@ -183,53 +183,84 @@ foreach ($test_results as $result) {
 <!DOCTYPE html>
 <html>
 <head>
-    <title>MumboJumbo Test Suite</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Eventure Test</title>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #fdf6f0; padding: 20px; }
-        .container { max-width: 900px; margin: 0 auto; background-color: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        h1 { text-align: center; color: #7a5c61; margin-bottom: 30px; }
-        .summary { display: flex; justify-content: space-around; margin-bottom: 30px; }
-        .summary-box { padding: 20px; border-radius: 8px; text-align: center; flex: 1; margin: 0 10px; }
-        .summary-pass { background-color: #d4edda; color: #155724; }
-        .summary-fail { background-color: #f8d7da; color: #721c24; }
-        .test-result { padding: 15px; margin: 10px 0; border-radius: 8px; border-left: 5px solid; }
-        .pass { background-color: #d4edda; border-color: #28a745; }
-        .fail { background-color: #f8d7da; border-color: #dc3545; }
-        .test-name { font-weight: bold; font-size: 1.1rem; }
-        .test-message { margin-top: 5px; color: #555; }
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 800px; 
+            margin: 50px auto; 
+            padding: 20px;
+        }
+        h1 { 
+            text-align: center; 
+        }
+        .summary { 
+            text-align: center; 
+            margin: 30px 0;
+            font-size: 18px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .pass {
+            color: green;
+            font-weight: bold;
+        }
+        .fail {
+            color: red;
+            font-weight: bold;
+        }
+        .buttons {
+            text-align: center;
+            margin-top: 30px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 14px;
+            margin: 5px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
-<div class="container">
     <h1>MumboJumbo Test Suite</h1>
     
     <div class="summary">
-        <div class="summary-box summary-pass">
-            <h2><?= $passed ?></h2>
-            <p>Tests Passed</p>
-        </div>
-        <div class="summary-box summary-fail">
-            <h2><?= $failed ?></h2>
-            <p>Tests Failed</p>
-        </div>
+        <p>Tests Passed: <?= $passed ?> | Tests Failed: <?= $failed ?></p>
     </div>
 
-    <h3>Test Results:</h3>
-    <?php foreach ($test_results as $test_name => $result): ?>
-        <div class="test-result <?= strtolower($result['status']) ?>">
-            <div class="test-name">
-                [<?= $result['status'] ?>] <?= htmlspecialchars($test_name) ?>
-            </div>
-            <div class="test-message"><?= htmlspecialchars($result['message']) ?></div>
-        </div>
-    <?php endforeach; ?>
+    <table>
+        <thead>
+            <tr>
+                <th>Test Name</th>
+                <th>Status</th>
+                <th>Message</th>
+            </tr>
+        </thead>
+        <tbody>
+        <?php foreach ($test_results as $test_name => $result): ?>
+            <tr>
+                <td><?= htmlspecialchars($test_name) ?></td>
+                <td class="<?= strtolower($result['status']) ?>"><?= $result['status'] ?></td>
+                <td><?= htmlspecialchars($result['message']) ?></td>
+            </tr>
+        <?php endforeach; ?>
+        </tbody>
+    </table>
 
-    <div style="margin-top: 30px; text-align: center;">
-        <a href="index.php" class="btn btn-primary">Back to Home</a>
-        <button onclick="location.reload()" class="btn btn-secondary">Run Tests Again</button>
+    <div class="buttons">
+        <button onclick="location.href='index.php'">Back to Home</button>
+        <button onclick="location.reload()">Run Tests Again</button>
     </div>
-</div>
 </body>
 </html>
-
