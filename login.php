@@ -20,7 +20,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (empty($email) || empty($password)) {
         $message = "Please fill in all fields.";
     } else {
-        // Prepare SQL to find user by email
         $stmt = $conn->prepare("SELECT user_id, first_name, last_name, password_hash FROM users WHERE email = ?");
         $stmt->bind_param("s", $email);
         $stmt->execute();
@@ -29,14 +28,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if ($result->num_rows === 1) {
             $user = $result->fetch_assoc();
 
-            // Verify password
             if (password_verify($password, $user['password_hash'])) {
-                // Successful login, store user info in session
                 $_SESSION['user_id'] = $user['user_id'];
                 $_SESSION['first_name'] = $user['first_name'];
                 $_SESSION['last_name'] = $user['last_name'];
 
-                // Redirect to dashboard or event creation page
                 header("Location: dashboard.php");
                 exit();
             } else {
@@ -54,28 +50,46 @@ $conn->close();
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Login</title>
-    <style>
-        body { font-family: Arial, sans-serif; }
-        form { max-width: 400px; margin: auto; }
-        input { width: 100%; padding: 8px; margin: 5px 0; }
-        button { padding: 10px 15px; }
-        p { color: red; }
-    </style>
+    <meta charset="UTF-8">
+    <title>Login - MumboJumbo</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="public/css/style.css">
 </head>
 <body>
-    <h2 style="text-align:center;">Login</h2>
-    <?php if (!empty($message)) { echo "<p style='text-align:center;'>$message</p>"; } ?>
-    <form method="POST" action="login.php">
-        <label>Email:</label>
-        <input type="email" name="email" required>
+    <div class="container">
+        <div class="card mx-auto login-card">
+            <div class="card-body">
+                <h3 class="card-title text-center mb-4">Login</h3>
 
-        <label>Password:</label>
-        <input type="password" name="password" required>
+                <?php if (!empty($message)) : ?>
+                    <div class="alert alert-danger"><?php echo $message; ?></div>
+                <?php endif; ?>
 
-        <button type="submit">Login</button>
-    </form>
+                <form method="POST" action="login.php">
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email:</label>
+                        <input type="email" id="email" name="email" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password:</label>
+                        <input type="password" id="password" name="password" class="form-control" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Login</button>
+                </form>
+
+                <div class="register-link">
+                    <p>Don't have an account? <a href="register.php">Sign up here</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
