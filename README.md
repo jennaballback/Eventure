@@ -1,4 +1,4 @@
-# MumboJumbo
+# Eventure by team MumboJumbo
 
 download XAMPP for Apache: https://www.apachefriends.org/  
 For setup: only need to select Apache, MySQL, PHP, phpMyAdmin    
