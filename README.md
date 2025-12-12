@@ -13,7 +13,7 @@ For setup: only need to select Apache, MySQL, PHP, phpMyAdmin
 YOU CAN UNSELECT THESE: FileZilla FTP Server, Mercury Mail Server, Tomcat, Perl, Webalizer, Fake Sendmail  
 2. Clone using Git or Download ZIP
 3. Move Project Files -> Make sure the entire project folder is under C:\xampp\htdocs\eventure (in your file explorer)
-4. Start Apache & MySQL
+4. Open XAMPP Control Panel -> Start Apache & MySQL (Both should turn green)
 5. Import the Database (Using the SQL File Already Included)
 The database file here:/sql/event_planner.sql  
 Open phpMyAdmin & Click New → create a new database named: event_planner then Select the new database on the left -> Click Import at the top & Select the file:sql/event_planner.sql and then Click Go
