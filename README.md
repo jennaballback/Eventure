@@ -1,5 +1,5 @@
 # Eventure by team MumboJumbo
-A College Event-Planning Web Application  
+A College Event-Planning Web Application (Project URL: https://github.com/jennaballback/Eventure)
 
 Eventure is a lightweight, PHP–MySQL powered event-planning platform designed to help college students create, manage, and RSVP to events. Users can build events, track attendance, and view upcoming, hosted, and past gatherings; all through an intuitive interface with clean visual design.
 
