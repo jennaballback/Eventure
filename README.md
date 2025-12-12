@@ -8,7 +8,7 @@ User Features: Create, edit, and delete events, View events by category: Upcomin
 System Features: Secure login/logout with session handling, Clean, responsive UI built with Bootstrap + custom CSS, Structured MySQL database with relational constraints, Email integration using PHPMailer + Gmail SMTP, and Integrated test suite for DB connectivity and PHP functionality
 
 Installation & Run:
-1. download XAMPP for Apache: https://www.apachefriends.org/  (if you don't already have)
+1. download XAMPP for Apache: https://www.apachefriends.org/  (if you don't already have)  
 For setup: only need to select Apache, MySQL, PHP, phpMyAdmin    
 YOU CAN UNSELECT THESE: FileZilla FTP Server, Mercury Mail Server, Tomcat, Perl, Webalizer, Fake Sendmail  
 2. Clone using Git or Download ZIP
