@@ -18,15 +18,23 @@ $view = $_GET['view'] ?? 'upcoming';
 // Build SQL based on selected view
 switch ($view) {
     case 'hosted':
-        $stmt = $conn->prepare("SELECT * FROM events WHERE host_id = ? ORDER BY start_time ASC");
+        $stmt = $conn->prepare(
+            "SELECT * FROM events WHERE host_id = ? ORDER BY start_time ASC"
+        );
         $stmt->bind_param("i", $user_id);
         break;
+
     case 'past':
-        $stmt = $conn->prepare("SELECT * FROM events WHERE end_time < NOW() ORDER BY start_time DESC");
+        $stmt = $conn->prepare(
+            "SELECT * FROM events WHERE end_time < NOW() ORDER BY start_time DESC"
+        );
         break;
+
     case 'upcoming':
     default:
-        $stmt = $conn->prepare("SELECT * FROM events WHERE start_time >= NOW() ORDER BY start_time ASC");
+        $stmt = $conn->prepare(
+            "SELECT * FROM events WHERE start_time >= NOW() ORDER BY start_time ASC"
+        );
         break;
 }
 
@@ -40,54 +48,88 @@ $conn->close();
 include 'includes/header.php';
 ?>
 
-<h2 class="mb-4">
-    <?= $view === 'hosted' ? 'My Hosted Events' : ($view === 'past' ? 'Past Events' : 'Upcoming Events') ?>
-</h2>
+<div class="container mt-4">
 
-<?php if ($view === 'hosted'): ?>
-    <div class="mb-3">
-        <a href="events/create_event.php" class="btn btn-success">Create Event</a>
-    </div>
-<?php endif; ?>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>
+            <?= $view === 'hosted'
+                ? 'My Hosted Events'
+                : ($view === 'past' ? 'Past Events' : 'Upcoming Events') ?>
+        </h2>
 
-<table class="table table-striped table-bordered">
-    <thead>
-        <tr>
-            <th>Title</th>
-            <th>Description</th>
-            <th>Location</th>
-            <th>Theme</th>
-            <th>Start Time</th>
-            <th>End Time</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        <?php if (!empty($events)): ?>
-            <?php foreach ($events as $event): ?>
-                <tr>
-                    <td><?= htmlspecialchars($event['title']) ?></td>
-                    <td><?= htmlspecialchars($event['description'] ?? '') ?></td>
-                    <td><?= htmlspecialchars($event['location'] ?? '') ?></td>
-                    <td><?= htmlspecialchars($event['theme'] ?? '') ?></td>
-                    <td><?= htmlspecialchars($event['start_time']) ?></td>
-                    <td><?= htmlspecialchars($event['end_time'] ?? '') ?></td>
-                    <td>
-                        <?php if ($event['host_id'] == $user_id): ?>
-                            <a href="events/edit_event.php?event_id=<?= $event['event_id'] ?>" class="btn btn-warning btn-sm">Edit</a>
-                            <a href="events/delete_event.php?event_id=<?= $event['event_id'] ?>" onclick="return confirm('Are you sure?');" class="btn btn-danger btn-sm">Delete</a>
-                        <?php else: ?>
-                            <a href="events/rsvp.php?event_id=<?= $event['event_id'] ?>" class="btn btn-info btn-sm">RSVP</a>
-                        <?php endif; ?>
-                    </td>
-                </tr>
-            <?php endforeach; ?>
-        <?php else: ?>
-            <tr>
-                <td colspan="7" class="text-center">No events found.</td>
-            </tr>
+        <?php if ($view === 'hosted'): ?>
+            <a href="events/create_event.php" class="btn btn-success">
+                + Create Event
+            </a>
         <?php endif; ?>
-    </tbody>
-</table>
+    </div>
+
+    <?php if (empty($events)): ?>
+        <p class="text-center text-muted">No events found.</p>
+    <?php else: ?>
+
+        <div class="row">
+            <?php foreach ($events as $event): ?>
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+
+                        <!-- EVENT IMAGE -->
+                        <?php if (!empty($event['image_path'])): ?>
+                            <img
+                                src="<?= htmlspecialchars($event['image_path']) ?>"
+                                class="card-img-top"
+                                style="height: 200px; object-fit: cover;"
+                                alt="Event Image">
+                        <?php else: ?>
+                            <div
+                                class="d-flex align-items-center justify-content-center bg-light text-muted"
+                                style="height: 200px;">
+                                No Image
+                            </div>
+                        <?php endif; ?>
+
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">
+                                <?= htmlspecialchars($event['title']) ?>
+                            </h5>
+
+                            <?php if (!empty($event['description'])): ?>
+                                <p class="card-text">
+                                    <?= htmlspecialchars(substr($event['description'], 0, 120)) ?>
+                                    <?= strlen($event['description']) > 120 ? '...' : '' ?>
+                                </p>
+                            <?php endif; ?>
+
+                            <p class="card-text text-muted mb-1">
+                                📍 <?= htmlspecialchars($event['location'] ?? 'TBA') ?>
+                            </p>
+
+                            <p class="card-text text-muted mb-2">
+                                🕒 <?= date("M d, Y g:i A", strtotime($event['start_time'])) ?>
+                            </p>
+
+                            <div class="mt-auto">
+                                <?php if ($event['host_id'] == $user_id): ?>
+                                    <a href="events/edit_event.php?event_id=<?= $event['event_id'] ?>"
+                                       class="btn btn-warning btn-sm">Edit</a>
+
+                                    <a href="events/delete_event.php?event_id=<?= $event['event_id'] ?>"
+                                       onclick="return confirm('Are you sure?');"
+                                       class="btn btn-danger btn-sm">Delete</a>
+                                <?php else: ?>
+                                    <a href="events/rsvp.php?event_id=<?= $event['event_id'] ?>"
+                                       class="btn btn-info btn-sm">RSVP</a>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+
+    <?php endif; ?>
+
+</div>
 
 <?php include 'includes/footer.php'; ?>
