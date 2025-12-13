@@ -48,16 +48,31 @@ $conn->close();
 include 'includes/header.php';
 ?>
 
-<div class="container mt-4">
+<div class="container mt-2">
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>
-            <?= $view === 'hosted'
-                ? 'My Hosted Events'
-                : ($view === 'past' ? 'Past Events' : 'Upcoming Events') ?>
-        </h2>
+    <div class="d-flex justify-content-between align-items-center">
+        <?php
+            // Normalize view and set title image
+            $viewLower = strtolower($view);
+            switch ($viewLower) {
+                case 'hosted':
+                    $titleImage = 'public/img/myhostedevents.png';
+                    $altText = 'My Hosted Events';
+                    break;
+                case 'past':
+                    $titleImage = 'public/img/pastevents.png';
+                    $altText = 'Past Events';
+                    break;
+                case 'upcoming':
+                default:
+                    $titleImage = 'public/img/upcomingevents.png';
+                    $altText = 'Upcoming Events';
+                    break;
+            }
+        ?>
+        <img src="<?= $titleImage ?>" alt="<?= $altText ?>" style="height: 80px; width: auto;">
 
-        <?php if ($view === 'hosted'): ?>
+        <?php if ($viewLower === 'hosted'): ?>
             <a href="events/create_event.php" class="btn btn-success">
                 + Create Event
             </a>
