@@ -4,6 +4,8 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
+// Verify user is logged in
+
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../login.php");
     exit();
@@ -17,11 +19,12 @@ $user_id = $_SESSION['user_id'];
 $message = '';
 $message_type = '';
 
+// Redirect if no event ID provided
 if (!$event_id) {
     header("Location: ../dashboard.php");
     exit();
 }
-
+// Verify user is the event host
 $stmt = $conn->prepare("SELECT * FROM events WHERE event_id = ? AND host_id = ?");
 $stmt->bind_param("ii", $event_id, $user_id);
 $stmt->execute();
@@ -29,11 +32,12 @@ $result = $stmt->get_result();
 $event = $result->fetch_assoc();
 $stmt->close();
 
+// Redirect if user is not the host
 if (!$event) {
     header("Location: ../dashboard.php");
     exit();
 }
-
+// Get host information for email
 $stmt = $conn->prepare("SELECT first_name, last_name FROM users WHERE user_id = ?");
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
@@ -41,6 +45,7 @@ $result = $stmt->get_result();
 $host = $result->fetch_assoc();
 $stmt->close();
 
+// Process invitation form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $guest_email = trim($_POST['guest_email'] ?? '');
     $guest_name = trim($_POST['guest_name'] ?? '');
