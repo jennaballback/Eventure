@@ -5,6 +5,11 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 include '../includes/db.php';
+//Includes email_helper.php
+$email_enabled = file_exists('../includes/email_helper.php');
+if ($email_enabled) {
+    include '../includes/email_helper.php';
+}
 
 $event_id = $_GET['event_id'] ?? null;
 
@@ -14,7 +19,13 @@ if (!$event_id) {
 }
 
 // Fetch event info
-$stmt = $conn->prepare("SELECT * FROM events WHERE event_id = ?");
+//$stmt = $conn->prepare("SELECT * FROM events WHERE event_id = ?");
+
+$stmt = $conn->prepare("SELECT e.*, u.first_name AS host_first, u.last_name AS host_last, u.email AS host_email 
+                        FROM events e 
+                        JOIN users u ON e.host_id = u.user_id 
+                        WHERE e.event_id = ?");
+
 $stmt->bind_param("i", $event_id);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -54,6 +65,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $user_id) {
         $user_rsvp = $status;
         $message = "Your RSVP has been recorded as '".ucfirst($status)."'.";
 
+// Send email notifications to guest and host if email system is configured
+        if ($email_enabled) {
+            $stmt = $conn->prepare("SELECT first_name, last_name, email FROM users WHERE user_id = ?");
+            $stmt->bind_param("i", $user_id);
+            $stmt->execute();
+            $user_result = $stmt->get_result();
+            $user = $user_result->fetch_assoc();
+            $stmt->close();
+            
+            $event_details = [
+                'title' => $event['title'],
+                'location' => $event['location'] ?? 'TBA',
+                'start_time' => date('l, F j, Y \a\t g:i A', strtotime($event['start_time']))
+            ];
+            send_rsvp_confirmation($user['email'], $user['first_name'], $event_details, $status);
+            
+            $guest_name = $user['first_name'] . ' ' . $user['last_name'];
+            $host_name = $event['host_first'] . ' ' . $event['host_last'];
+            send_host_rsvp_notification($event['host_email'], $host_name, $guest_name, $event['title'], $status);
+        }
+        
+
     }
 }
 
@@ -81,6 +114,7 @@ $conn->close();
         <p><strong>Location:</strong> <?= htmlspecialchars($event['location'] ?? 'N/A') ?></p>
         <p><strong>Start Time:</strong> <?= htmlspecialchars($event['start_time']) ?></p>
         <p><strong>End Time:</strong> <?= htmlspecialchars($event['end_time'] ?? 'N/A') ?></p>
+        <p><strong>Host:</strong> <?= htmlspecialchars($event['host_first'] . ' ' . $event['host_last']) ?></p>
 
         <?php if ($message) echo "<p class='text-center fw-bold'>$message</p>"; ?>
 
