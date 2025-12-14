@@ -185,28 +185,7 @@ function test_database_schema($conn) {
     }
 }
 
-// TEST 10: Email Configuration Files
-/*
-function test_email_files() {
-    $email_files = [
-        'includes/email_config.php',
-        'includes/email_helper.php',
-        'events/send_invite.php'
-    ];
-    
-    $missing = [];
-    foreach ($email_files as $file) {
-        if (!file_exists($file)) {
-            $missing[] = $file;
-        }
-    }
-    
-    if (empty($missing)) {
-        return ['status' => 'PASS', 'message' => 'All email integration files exist'];
-    } else {
-        return ['status' => 'WARN', 'message' => 'Missing email files: ' . implode(', ', $missing) . ' (Optional feature)'];
-    }
-}*/
+
 
 // Run all tests
 $test_results['Database Connection'] = test_database_connection($conn);
@@ -218,7 +197,7 @@ $test_results['Foreign Keys'] = test_foreign_keys($conn);
 $test_results['RSVP Constraints'] = test_rsvp_constraints($conn);
 $test_results['Required Files'] = test_required_files();
 $test_results['Database Schema'] = test_database_schema($conn);
-//$test_results['Email Integration'] = test_email_files();
+
 
 $conn->close();
 
