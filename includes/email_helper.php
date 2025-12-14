@@ -9,10 +9,12 @@ use PHPMailer\PHPMailer\Exception;
 
 include_once 'email_config.php';
 
+// Send event invitation email to guest
 function send_event_invitation($to_email, $to_name, $event_details) {
     $mail = new PHPMailer(true);
     
     try {
+        // Configure SMTP settings for Gmail
         $mail->isSMTP();
         $mail->Host       = EMAIL_HOST;
         $mail->SMTPAuth   = true;
@@ -54,7 +56,7 @@ function send_event_invitation($to_email, $to_name, $event_details) {
         return false;
     }
 }
-
+// Send RSVP confirmation email to guest
 function send_rsvp_confirmation($to_email, $to_name, $event_details, $rsvp_status) {
     $mail = new PHPMailer(true);
     
@@ -94,7 +96,7 @@ function send_rsvp_confirmation($to_email, $to_name, $event_details, $rsvp_statu
         return false;
     }
 }
-
+// Send RSVP notification email to event host
 function send_host_rsvp_notification($host_email, $host_name, $guest_name, $event_title, $rsvp_status) {
     $mail = new PHPMailer(true);
     
