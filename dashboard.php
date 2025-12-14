@@ -124,7 +124,8 @@ include 'includes/header.php';
                             </p>
 
                             <div class="mt-auto">
-                                <?php if ($event['host_id'] == $user_id): ?>
+                                
+                                /*<?php if ($event['host_id'] == $user_id): ?>
                                     <a href="events/edit_event.php?event_id=<?= $event['event_id'] ?>"
                                        class="btn btn-warning btn-sm">Edit</a>
 
@@ -134,6 +135,21 @@ include 'includes/header.php';
                                 <?php else: ?>
                                     <a href="events/rsvp.php?event_id=<?= $event['event_id'] ?>"
                                        class="btn btn-info btn-sm">RSVP</a>
+                                <?php endif; ?>*/
+                                
+                                <?php if ($event['host_id'] == $user_id): ?>
+                                 <a href="events/edit_event.php?event_id=<?= $event['event_id'] ?>"
+                                class="btn btn-warning btn-sm">Edit</a>
+
+                                <a href="events/delete_event.php?event_id=<?= $event['event_id'] ?>"
+                                onclick="return confirm('Are you sure?');"
+                                class="btn btn-danger btn-sm">Delete</a>
+
+                                <a href="events/event_rsvps.php?event_id=<?= $event['event_id'] ?>"
+                                class="btn btn-info btn-sm">View RSVPs</a>
+                                <?php else: ?>
+                                <a href="events/rsvp.php?event_id=<?= $event['event_id'] ?>"
+                               class="btn btn-info btn-sm">RSVP</a>
                                 <?php endif; ?>
                             </div>
                         </div>
