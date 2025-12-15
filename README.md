@@ -26,4 +26,8 @@ $dbname = "event_planner";
 7. Run the Application  
 http://localhost/Eventure/dashboard.php
 
+For convenience, a test user account is provided:   
+Email: JohnDoe@gmail.com   
+Password: Qwerty123    
+
 This project was created for CSE 389 – Web System Architecture and is intended for academic use.
