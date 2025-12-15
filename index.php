@@ -8,10 +8,10 @@ include 'includes/db.php';
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>MumboJumbo Event Planner</title>
+    <title>Eventure Event Planner</title>
 </head>
 <body>
-    <h1>MumboJumbo Event Planner</h1>
+    <h1>Eventure Event Planner</h1>
     <p>If you see this page without errors, the site and DB connection are working</p>
 </body>
 </html>

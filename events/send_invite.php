@@ -63,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'location' => $event['location'] ?? 'TBA',
             'start_time' => date('l, F j, Y \a\t g:i A', strtotime($event['start_time'])),
             'host_name' => $host['first_name'] . ' ' . $host['last_name'],
-            'rsvp_link' => "http://localhost/MumboJumbo/events/rsvp.php?event_id=" . $event_id
+            'rsvp_link' => "http://localhost/Eventure/events/rsvp.php?event_id=" . $event_id
         ];
         
         if (send_event_invitation($guest_email, $guest_name, $event_details)) {

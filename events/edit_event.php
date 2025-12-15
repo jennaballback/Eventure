@@ -42,12 +42,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $theme       = isset($_POST['theme']) && !empty($_POST['theme']) ? trim($_POST['theme']) : null;
     $start_time  = isset($_POST['start_time']) ? trim($_POST['start_time']) : '';
     $end_time    = isset($_POST['end_time']) && !empty($_POST['end_time']) ? trim($_POST['end_time']) : null;
+    
 
     if (empty($title) || empty($start_time)) {
         $message = "Please fill in the title and start time.";
     } else {
+
         $stmt = $conn->prepare("UPDATE events SET title=?, description=?, location=?, start_time=?, end_time=?, theme=? WHERE event_id=? AND host_id=?");
-        $stmt->bind_param("ssssssii", $title, $description, $location, $start_time, $end_time, $theme, $event_id, $user_id);
+        $stmt->bind_param("sssssssii", $title, $description, $location, $start_time, $end_time, $theme,  $event_id, $user_id);
 
         if ($stmt->execute()) {
             $message = "Event updated successfully!";
@@ -164,6 +166,7 @@ $conn->close();
         <label>End Time (optional):</label>
         <input type="datetime-local" name="end_time" 
                value="<?= !empty($event['end_time']) ? date('Y-m-d\TH:i', strtotime($event['end_time'])) : '' ?>">
+
 
         <button type="submit">Update Event</button>
     </form>

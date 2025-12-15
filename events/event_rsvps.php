@@ -56,7 +56,7 @@ foreach ($rsvps as $rsvp) {
 }
 
 // Build the invite link (you can share this URL)
-$invite_link = "http://localhost/MumboJumbo/events/rsvp.php?event_id=" . $event_id; 
+$invite_link = "http://localhost/Eventure/events/rsvp.php?event_id=" . $event_id; 
 $conn->close();
 ?>
 

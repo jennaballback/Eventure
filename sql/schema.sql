@@ -10,19 +10,20 @@ CREATE TABLE users (
 
 -- EVENTS TABLE
 CREATE TABLE events (
-  event_id INT AUTO_INCREMENT PRIMARY KEY,
-  host_id INT NOT NULL,
-  title VARCHAR(150) NOT NULL,
-  description TEXT,
-  location VARCHAR(255) NOT NULL,
-  start_time DATETIME NOT NULL,
-  end_time DATETIME,
-  theme VARCHAR(100),
-  is_canceled TINYINT(1) DEFAULT 0,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT fk_events_host
-    FOREIGN KEY (host_id) REFERENCES users(user_id)
-    ON DELETE CASCADE
+    event_id INT AUTO_INCREMENT PRIMARY KEY,
+    host_id INT NOT NULL,
+    title VARCHAR(150) NOT NULL,
+    description TEXT,
+    location VARCHAR(255) NOT NULL,
+    start_time DATETIME NOT NULL,
+    end_time DATETIME,
+    theme VARCHAR(100),
+    image_path VARCHAR(255),   
+    is_canceled TINYINT(1) DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_events_host
+        FOREIGN KEY (host_id) REFERENCES users(user_id)
+        ON DELETE CASCADE
 );
 
 -- RSVPS TABLE
