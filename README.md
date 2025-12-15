@@ -16,7 +16,7 @@ YOU CAN UNSELECT THESE: FileZilla FTP Server, Mercury Mail Server, Tomcat, Perl,
 4. Open XAMPP Control Panel -> Start Apache & MySQL (Both should turn green)
 5. Import the Database (Using the SQL File Already Included)
 The database file here:/sql/event_planner.sql  
-Open phpMyAdmin & Click New → create a new database named: event_planner then Select the new database on the left -> Click Import at the top & Select the file:sql/event_planner.sql and then Click Go
+Open phpMyAdmin & Click New → create a new database named: event_planner then Select the new database on the left -> Click Import at the top & Select the file:sql/schema.sql and then Click Go
 6. Confirm Database Settings
 Open: includes/db.php & Make sure these match your XAMPP setup:  
 $host = "localhost";  
