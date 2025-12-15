@@ -12,10 +12,10 @@ Installation & Run:
 For setup: only need to select Apache, MySQL, PHP, phpMyAdmin    
 YOU CAN UNSELECT THESE: FileZilla FTP Server, Mercury Mail Server, Tomcat, Perl, Webalizer, Fake Sendmail  
 2. Clone using Git or Download ZIP
-3. Move Project Files -> Make sure the entire project folder is under C:\xampp\htdocs\eventure (in your file explorer)
+3. Move Project Files -> Make sure the entire project folder is under C:\xampp\htdocs\Eventure (in your file explorer)
 4. Open XAMPP Control Panel -> Start Apache & MySQL (Both should turn green)
 5. Import the Database (Using the SQL File Already Included)
-The database file here:/sql/event_planner.sql  
+Open phpMyAdmin (http://localhost/phpmyadmin)
 Open phpMyAdmin & Click New → create a new database named: event_planner then Select the new database on the left -> Click Import at the top & Select the file:sql/schema.sql and then Click Go
 6. Confirm Database Settings
 Open: includes/db.php & Make sure these match your XAMPP setup:  
@@ -23,6 +23,11 @@ $host = "localhost";
 $user = "root";  
 $pass = "";    
 $dbname = "event_planner";
-7. Run the Application
+7. Run the Application  
+http://localhost/Eventure/dashboard.php
+
+For convenience, a test user account is provided:   
+Email: JohnDoe@gmail.com   
+Password: Qwerty123    
 
 This project was created for CSE 389 – Web System Architecture and is intended for academic use.
